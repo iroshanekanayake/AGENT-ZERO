@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="AGENT ZERO — Human-approved multi-agent project execution platform">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>AGENT ZERO — Command Center</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#e8eef7;background:#0b1220;--panel:#111c2d;--line:#26364c;--muted:#91a2b8;--cyan:#50d5f5}
+*{box-sizing:border-box}body{margin:0;min-width:320px;background:#0b1220}button,input,textarea,select{font:inherit}button{cursor:pointer}
+.layout{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:235px;background:#0d1727;border-right:1px solid #1e2c40;padding:23px 15px;display:flex;flex-direction:column}
+.brand{display:flex;gap:11px;align-items:center;padding:0 8px 34px}.logo{width:39px;height:39px;border-radius:12px;background:#173b55;color:#70e1ff;display:grid;place-items:center;font-size:22px}.brand b{display:block;font-size:14px;letter-spacing:1px}.brand small{color:#8195aa;font-size:9px;letter-spacing:2px}
+.label{font-size:10px;color:#71869f;letter-spacing:1.7px;padding:0 10px 12px}.nav{display:grid;gap:5px}.nav button{border:0;background:none;color:#9aabc0;text-align:left;padding:12px;border-radius:8px;font-size:13px}.nav button.active,.nav button:hover{background:#17283d;color:#eaf7ff;box-shadow:inset 2px 0 #50d5f5}
+.bottom{margin-top:auto}.mode{border:1px solid #235148;background:#122a2a;color:#8ce0b6;padding:12px;border-radius:9px;font-size:10px}.mode small{display:block;color:#9ab4a8;margin-top:5px}.workspace{font-size:11px;color:#c4d2e1;margin:15px 5px 0}
+.main{margin-left:235px;min-height:100vh}.top{height:62px;border-bottom:1px solid #1e2c40;display:flex;align-items:center;justify-content:space-between;padding:0 30px;color:#9aabc0;font-size:12px}.online{color:#83ddb0}.content{max-width:1300px;margin:auto;padding:32px}.heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}.eyebrow{font-size:10px;letter-spacing:1.7px;color:#6d8aa5;font-weight:bold}.heading h1{font-size:29px;margin:8px 0 5px}.heading p{color:#93a5ba;font-size:12px;margin:0}
+.primary,.secondary,.approve,.reject{border:0;border-radius:8px;padding:11px 15px;font-size:12px;font-weight:bold}.primary{background:linear-gradient(110deg,#168bb7,#347fe1);color:white}.secondary{background:#1a2a40;color:#d2dfec;border:1px solid #30445f}.approve{background:#174533;color:#83e0b2}.reject{background:#47262d;color:#ffadb6}
+.hero{border:1px solid #24506c;border-radius:14px;background:radial-gradient(ellipse at 80% 50%,#173d59,#122238 70%);padding:30px 34px;margin-bottom:18px;min-height:220px}.hero .eyebrow{color:#6ee0ff}.hero h2{font-size:28px;line-height:1.2;margin:14px 0 8px}.hero p{font-size:12px;color:#a7bad0;line-height:1.7;max-width:470px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stat,.panel{background:var(--panel);border:1px solid #23344b;border-radius:11px}.stat{padding:15px}.stat small{display:block;color:#8ea1b8;font-size:10px}.stat strong{display:block;font-size:24px;margin-top:5px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:15px}.panel{padding:18px;margin-bottom:14px}.panel h3{font-size:14px;margin:0 0 6px}.sub{font-size:11px;color:#879bb2;margin:0 0 13px}.row{display:flex;align-items:center;gap:11px;padding:12px 2px;border-bottom:1px solid #26364c}.row:last-child{border:0}.symbol{width:34px;height:34px;border-radius:9px;background:#17334a;color:#63d8f6;display:grid;place-items:center;flex:none}.rowmain{flex:1;min-width:0}.rowmain b{display:block;font-size:11px;overflow:hidden;text-overflow:ellipsis}.rowmain small{display:block;color:#8195ac;font-size:10px;margin-top:4px}.pill{font-size:9px;text-transform:uppercase;padding:5px 7px;border-radius:20px;background:#263449;color:#b6c4d4}.waiting{background:#47391f;color:#f3cb75}.good{background:#173c32;color:#75dcae}.bad{background:#48262d;color:#ff9eaa}
+.agentgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.agent{background:var(--panel);border:1px solid #26364c;border-radius:11px;padding:16px}.agent b{font-size:12px}.agent p{font-size:11px;color:#91a2b8;line-height:1.5;min-height:48px}.agent button{font-size:10px}
+.empty{text-align:center;padding:30px;color:#9aabc0;font-size:12px}.notice{background:#142b2b;border:1px solid #235148;border-radius:8px;padding:12px;color:#a9dec7;font-size:11px;margin-top:12px}
+.modalbg{position:fixed;inset:0;background:#020711cc;display:none;place-items:center;padding:16px;z-index:9}.modal{width:min(480px,100%);background:#111e30;border:1px solid #34506c;border-radius:14px;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center}.modal h2{font-size:21px}.close{background:none;border:0;color:#afc1d5;font-size:22px}.modal label{display:block;font-size:11px;color:#b7c8da;margin:13px 0}.modal input,.modal textarea,.modal select{width:100%;display:block;margin-top:7px;background:#0c1727;border:1px solid #30435b;border-radius:8px;color:#e7f0fa;padding:11px;font-size:12px}.modal .notice{margin-bottom:14px}.full{width:100%}
+@media(max-width:900px){.sidebar{width:190px}.main{margin-left:190px}.content{padding:24px}.stats{grid-template-columns:repeat(2,1fr)}.agentgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.sidebar{width:58px;padding:15px 7px}.brand{padding:0 2px 25px}.brand>div:last-child,.label,.nav button span,.mode,.workspace{display:none}.nav button{text-align:center;padding:12px 3px;font-size:17px}.main{margin-left:58px}.top{height:54px;padding:0 12px}.content{padding:20px 12px}.heading h1{font-size:23px}.heading p{font-size:11px}.heading>.primary{font-size:0;padding:10px}.heading>.primary:after{content:"+";font-size:19px}.hero{padding:23px 18px}.hero h2{font-size:23px}.grid{grid-template-columns:1fr}.agentgrid{grid-template-columns:1fr}.stats{gap:8px}.stat{padding:11px}.stat strong{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand"><div class="logo">⌘</div><div><b>AGENT ZERO</b><small>COMMAND CENTER</small></div></div>
+ <div class="label">WORKSPACE</div>
+ <nav class="nav">
+  <button class="active" data-page="dashboard">◈ <span>Overview</span></button>
+  <button data-page="missions">▤ <span>Missions</span></button>
+  <button data-page="agents">◉ <span>AI Agents</span></button>
+  <button data-page="approvals">⬡ <span>Approvals</span></button>
+  <button data-page="activity">◷ <span>Activity Log</span></button>
+  <button data-page="settings">⚙ <span>Settings</span></button>
+ </nav>
+ <div class="bottom"><div class="mode">● HUMAN APPROVAL MODE<small>All important actions require review</small></div><div class="workspace">Local Workspace</div></div>
+</aside>
+<main class="main">
+ <header class="top"><span id="crumb">Workspace / Overview</span><span class="online">● System ready</span></header>
+ <section class="content" id="content"></section>
+</main>
+</div>
+<div class="modalbg" id="modalbg"><div class="modal">
+ <div class="modalhead"><div><div class="eyebrow">NEW WORK ITEM</div><h2>Create mission</h2></div><button class="close" id="close">×</button></div>
+ <label>Mission title<input id="mtitle" placeholder="e.g. Build a customer portal"></label>
+ <label>Description<textarea id="mdesc" rows="3" placeholder="Describe the outcome you want..."></textarea></label>
+ <label>Category<select id="mcat"><option value="software">Software development</option><option value="research">Research & analysis</option><option value="automation">Automation</option><option value="other">Other</option></select></label>
+ <div class="notice">This mission will be saved locally and placed in the human approval queue. No AI execution occurs in this version.</div>
+ <button class="primary full" id="create">Create mission →</button>
+</div></div>
+<script>
+const agents=[
+ ['Planner Agent','Mission planning','Breaks a mission into clear, ordered tasks.'],
+ ['Architect Agent','System design','Defines architecture, components and technical decisions.'],
+ ['Research Agent','Research','Collects relevant references and evidence.'],
+ ['Developer Agent','Implementation','Prepares code and project deliverables when authorized.'],
+ ['Tester Agent','Quality testing','Creates and runs approved validation checks.'],
+ ['Reviewer Agent','Quality review','Reviews outputs against acceptance criteria.']
+];
+let missions=JSON.parse(localStorage.getItem('az_missions')||'[]');
+let logs=JSON.parse(localStorage.getItem('az_logs')||'["Workspace initialized","Human approval mode enabled","Local-first storage ready"]');
+let enabled=JSON.parse(localStorage.getItem('az_agents')||'{}');
+let page='dashboard';
+const $=id=>document.getElementById(id);
+function persist(){localStorage.setItem('az_missions',JSON.stringify(missions));localStorage.setItem('az_logs',JSON.stringify(logs));localStorage.setItem('az_agents',JSON.stringify(enabled))}
+function log(s){logs.unshift(s);logs=logs.slice(0,40);persist()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function status(s){let cls=s==='awaiting approval'?'waiting':(['approved','completed'].includes(s)?'good':s==='rejected'?'bad':'');return `<span class="pill ${cls}">${esc(s)}</span>`}
+function row(m){return `<div class="row"><div class="symbol">▤</div><div class="rowmain"><b>${esc(m.title)}</b><small>${esc(m.category)} · ${new Date(m.createdAt).toLocaleDateString()}</small></div>${status(m.status)}</div>`}
+function empty(t,d){return `<div class="empty"><b>${t}</b><p>${d}</p></div>`}
+function heading(k,t,d,btn=false){return `<div class="heading"><div><div class="eyebrow">${k}</div><h1>${t}</h1><p>${d}</p></div>${btn?'<button class="primary" id="newMission">＋ New mission</button>':''}</div>`}
+function render(){
+ $('crumb').textContent='Workspace / '+({dashboard:'Overview',missions:'Missions',agents:'AI Agents',approvals:'Approvals',activity:'Activity Log',settings:'Settings'}[page]);
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+ const pending=missions.filter(m=>m.status==='awaiting approval');
+ let html='';
+ if(page==='dashboard'){
+ html=heading('YOUR AI OPERATIONS CENTER','Good to see you.','Plan missions, coordinate agents, and stay in control.',true)+
+ `<div class="hero"><div class="eyebrow">✦ MULTI-AGENT WORKSPACE</div><h2>Turn complex goals<br>into coordinated work.</h2><p>Give your AI team a mission. Review the plan. Approve every important action.</p><button class="secondary" id="heroNew">Create a mission →</button></div>
+ <div class="stats"><div class="stat"><small>Total missions</small><strong>${missions.length}</strong></div><div class="stat"><small>Awaiting approval</small><strong>${pending.length}</strong></div><div class="stat"><small>Available agents</small><strong>${agents.filter(a=>enabled[a[0]]!==false).length}</strong></div><div class="stat"><small>Completed</small><strong>${missions.filter(m=>m.status==='completed').length}</strong></div></div>
+ <div class="grid"><div class="panel"><h3>Recent missions</h3><p class="sub">Your latest project activity</p>${missions.length?missions.slice(0,5).map(row).join(''):empty('No missions yet','Create your first mission to get started.')}</div><div class="panel"><h3>Agent team</h3><p class="sub">Your configured specialists</p>${agents.slice(0,4).map(a=>`<div class="row"><div class="symbol">◉</div><div class="rowmain"><b>${a[0]}</b><small>${a[1]}</small></div><span class="pill good">${enabled[a[0]]===false?'DISABLED':'READY'}</span></div>`).join('')}</div></div>`;
+ }else if(page==='missions'){
+ html=heading('PROJECT WORKFLOW','Missions','Create and track work assigned to your AI team.',true)+`<div class="panel">${missions.length?missions.map(row).join(''):empty('No missions created','Your missions will appear here.')}</div>`;
+ }else if(page==='agents'){
+ html=heading('SPECIALIST WORKFORCE','AI Agents','Configure the roles available to your mission orchestrator.')+`<div class="agentgrid">${agents.map(a=>`<div class="agent"><div class="symbol">◉</div><h3>${a[0]}</h3><div class="eyebrow">${a[1]}</div><p>${a[2]}</p><button class="secondary" data-agent="${a[0]}">${enabled[a[0]]===false?'Enable agent':'Disable agent'}</button></div>`).join('')}</div>`;
+ }else if(page==='approvals'){
+ html=heading('HUMAN-IN-THE-LOOP CONTROL','Approval center','Review proposed missions before any execution is allowed.')+`<div class="panel">${pending.length?pending.map(m=>`<div class="row"><div class="rowmain"><b>${esc(m.title)}</b><small>${esc(m.description||'No description provided.')}</small></div><button class="approve" data-approve="${m.id}">Approve</button><button class="reject" data-reject="${m.id}">Reject</button></div>`).join(''):empty('All clear','There are no missions waiting for approval.')}</div><div class="notice">Approval updates local demo state only. No AI tool or external action is executed.</div>`;
+ }else if(page==='activity'){
+ html=heading('AUDIT TRAIL','Activity log','Recent events in this local workspace.')+`<div class="panel">${logs.map((l,i)=>`<div class="row"><div class="symbol">◷</div><div class="rowmain"><b>${esc(l)}</b><small>${i?'Earlier event':'Just now'}</small></div></div>`).join('')}</div>`;
+ }else{
+ html=heading('WORKSPACE CONFIGURATION','Settings','Manage local preferences and future integrations.')+`<div class="grid"><div class="panel"><h3>Execution policy</h3><p class="sub">Human approval is required before future side-effecting actions.</p><span class="pill good">HUMAN APPROVAL ON</span></div><div class="panel"><h3>Storage</h3><p class="sub">Phase 1 records are stored in this browser.</p><span class="pill good">LOCAL-FIRST</span></div><div class="panel"><h3>AI Providers</h3><p class="sub">Flexible provider adapters are planned for Phase 2. No API keys are stored here.</p><span class="pill">MULTI-PROVIDER READY</span></div><div class="panel"><h3>Data management</h3><p class="sub">Reset local demo missions and activity history.</p><button class="reject" id="reset">Reset local demo data</button></div></div>`;
+ }
+ $('content').innerHTML=html;
+ const newBtn=$('newMission')||$('heroNew');if(newBtn)newBtn.onclick=openModal;
+ document.querySelectorAll('[data-agent]').forEach(b=>b.onclick=()=>{const n=b.dataset.agent;enabled[n]=enabled[n]===false?true:false;persist();log(`${n} ${enabled[n]?'enabled':'disabled'}`);render()});
+ document.querySelectorAll('[data-approve]').forEach(b=>b.onclick=()=>change(b.dataset.approve,'approved'));
+ document.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>change(b.dataset.reject,'rejected'));
+ if($('reset'))$('reset').onclick=()=>{if(confirm('Reset all local AGENT ZERO demo data?')){missions=[];logs=['Local demo data reset'];persist();render()}};
+}
+function change(id,s){missions=missions.map(m=>m.id===id?{...m,status:s}:m);const m=missions.find(x=>x.id===id);log(`Mission ${s}: ${m.title}`);persist();render()}
+function openModal(){$('modalbg').style.display='grid';$('mtitle').focus()}
+function closeModal(){$('modalbg').style.display='none'}
+$('close').onclick=closeModal;$('modalbg').onclick=e=>{if(e.target===$('modalbg'))closeModal()};
+$('create').onclick=()=>{const title=$('mtitle').value.trim();if(!title){alert('Please enter a mission title.');return}const m={id:crypto.randomUUID(),title,description:$('mdesc').value.trim(),category:$('mcat').value,status:'awaiting approval',createdAt:new Date().toISOString()};missions.unshift(m);persist();log('Mission created: '+title);$('mtitle').value='';$('mdesc').value='';closeModal();page='missions';render()};
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{page=b.dataset.page;render()});
+render();
+if('serviceWorker'in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
