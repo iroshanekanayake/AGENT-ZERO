@@ -15,7 +15,7 @@
 .label{font-size:10px;color:#71869f;letter-spacing:1.7px;padding:0 10px 12px}.nav{display:grid;gap:5px}.nav button{border:0;background:none;color:#9aabc0;text-align:left;padding:12px;border-radius:8px;font-size:13px}.nav button.active,.nav button:hover{background:#17283d;color:#eaf7ff;box-shadow:inset 2px 0 #50d5f5}
 .bottom{margin-top:auto}.mode{border:1px solid #235148;background:#122a2a;color:#8ce0b6;padding:12px;border-radius:9px;font-size:10px}.mode small{display:block;color:#9ab4a8;margin-top:5px}.workspace{font-size:11px;color:#c4d2e1;margin:15px 5px 0}
 .main{margin-left:235px;min-height:100vh}.top{height:62px;border-bottom:1px solid #1e2c40;display:flex;align-items:center;justify-content:space-between;padding:0 30px;color:#9aabc0;font-size:12px}.online{color:#83ddb0}.content{max-width:1300px;margin:auto;padding:32px}.heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}.eyebrow{font-size:10px;letter-spacing:1.7px;color:#6d8aa5;font-weight:bold}.heading h1{font-size:29px;margin:8px 0 5px}.heading p{color:#93a5ba;font-size:12px;margin:0}
-.primary,.secondary,.approve,.reject{border:0;border-radius:8px;padding:11px 15px;font-size:12px;font-weight:bold}.primary{background:linear-gradient(110deg,#168bb7,#347fe1);color:white}.secondary{background:#1a2a40;color:#d2dfec;border:1px solid #30445f}.approve{background:#174533;color:#83e0b2}.reject{background:#47262d;color:#ffadb6}
+.primary,.secondary,.approve,.reject{border:0;border-radius:8px;padding:11px 15px;font-size:12px;font-weight:bold}.primary{background:linear-gradient(110deg,#168bb7,#347fe1);color:white}.secondary{background:#1a2a40;color:#d2dfec;border:1px solid #30445f}.approve{background:#174533;color:#83e0b2}.approve:disabled{opacity:.35;cursor:not-allowed}.reject{background:#47262d;color:#ffadb6}
 .hero{border:1px solid #24506c;border-radius:14px;background:radial-gradient(ellipse at 80% 50%,#173d59,#122238 70%);padding:30px 34px;margin-bottom:18px;min-height:220px}.hero .eyebrow{color:#6ee0ff}.hero h2{font-size:28px;line-height:1.2;margin:14px 0 8px}.hero p{font-size:12px;color:#a7bad0;line-height:1.7;max-width:470px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.stat,.panel{background:var(--panel);border:1px solid #23344b;border-radius:11px}.stat{padding:15px}.stat small{display:block;color:#8ea1b8;font-size:10px}.stat strong{display:block;font-size:24px;margin-top:5px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:15px}.panel{padding:18px;margin-bottom:14px}.panel h3{font-size:14px;margin:0 0 6px}.sub{font-size:11px;color:#879bb2;margin:0 0 13px}.row{display:flex;align-items:center;gap:11px;padding:12px 2px;border-bottom:1px solid #26364c}.row:last-child{border:0}.symbol{width:34px;height:34px;border-radius:9px;background:#17334a;color:#63d8f6;display:grid;place-items:center;flex:none}.rowmain{flex:1;min-width:0}.rowmain b{display:block;font-size:11px;overflow:hidden;text-overflow:ellipsis}.rowmain small{display:block;color:#8195ac;font-size:10px;margin-top:4px}.pill{font-size:9px;text-transform:uppercase;padding:5px 7px;border-radius:20px;background:#263449;color:#b6c4d4}.waiting{background:#47391f;color:#f3cb75}.good{background:#173c32;color:#75dcae}.bad{background:#48262d;color:#ff9eaa}
 .agentgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.agent{background:var(--panel);border:1px solid #26364c;border-radius:11px;padding:16px}.agent b{font-size:12px}.agent p{font-size:11px;color:#91a2b8;line-height:1.5;min-height:48px}.agent button{font-size:10px}
 .empty{text-align:center;padding:30px;color:#9aabc0;font-size:12px}.notice{background:#142b2b;border:1px solid #235148;border-radius:8px;padding:12px;color:#a9dec7;font-size:11px;margin-top:12px}
@@ -34,6 +34,7 @@
   <button data-page="missions">▤ <span>Missions</span></button>
   <button data-page="agents">◉ <span>AI Agents</span></button>
   <button data-page="approvals">⬡ <span>Approvals</span></button>
+  <button data-page="security">⛨ <span>Security Audit</span></button>
   <button data-page="activity">◷ <span>Activity Log</span></button>
   <button data-page="settings">⚙ <span>Settings</span></button>
  </nav>
@@ -64,9 +65,20 @@ const agents=[
 let missions=JSON.parse(localStorage.getItem('az_missions')||'[]');
 let logs=JSON.parse(localStorage.getItem('az_logs')||'["Workspace initialized","Human approval mode enabled","Local-first storage ready"]');
 let enabled=JSON.parse(localStorage.getItem('az_agents')||'{}');
+let audits=JSON.parse(localStorage.getItem('az_audits')||'{}');
+let selectedAuditId='';
+const auditChecks=[
+ ['code','Code vulnerability review'],
+ ['secrets','API keys and secrets handling'],
+ ['data','Data protection and privacy'],
+ ['permissions','Permissions and access control'],
+ ['execution','Execution and sandbox safety'],
+ ['dependencies','Third-party dependency review'],
+ ['auth','Authentication and session security']
+];
 let page='dashboard';
 const $=id=>document.getElementById(id);
-function persist(){localStorage.setItem('az_missions',JSON.stringify(missions));localStorage.setItem('az_logs',JSON.stringify(logs));localStorage.setItem('az_agents',JSON.stringify(enabled))}
+function persist(){localStorage.setItem('az_missions',JSON.stringify(missions));localStorage.setItem('az_logs',JSON.stringify(logs));localStorage.setItem('az_agents',JSON.stringify(enabled));localStorage.setItem('az_audits',JSON.stringify(audits))}
 function log(s){logs.unshift(s);logs=logs.slice(0,40);persist()}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function status(s){let cls=s==='awaiting approval'?'waiting':(['approved','completed'].includes(s)?'good':s==='rejected'?'bad':'');return `<span class="pill ${cls}">${esc(s)}</span>`}
@@ -89,6 +101,24 @@ function render(){
  html=heading('SPECIALIST WORKFORCE','AI Agents','Configure the roles available to your mission orchestrator.')+`<div class="agentgrid">${agents.map(a=>`<div class="agent"><div class="symbol">◉</div><h3>${a[0]}</h3><div class="eyebrow">${a[1]}</div><p>${a[2]}</p><button class="secondary" data-agent="${a[0]}">${enabled[a[0]]===false?'Enable agent':'Disable agent'}</button></div>`).join('')}</div>`;
  }else if(page==='approvals'){
  html=heading('HUMAN-IN-THE-LOOP CONTROL','Approval center','Review proposed missions before any execution is allowed.')+`<div class="panel">${pending.length?pending.map(m=>`<div class="row"><div class="rowmain"><b>${esc(m.title)}</b><small>${esc(m.description||'No description provided.')}</small></div><button class="approve" data-approve="${m.id}">Approve</button><button class="reject" data-reject="${m.id}">Reject</button></div>`).join(''):empty('All clear','There are no missions waiting for approval.')}</div><div class="notice">Approval updates local demo state only. No AI tool or external action is executed.</div>`;
+  }else if(page==='security'){
+ const candidates=missions.filter(m=>['approved','completed'].includes(m.status));
+ if(!selectedAuditId && candidates.length) selectedAuditId=candidates[0].id;
+ const chosen=missions.find(m=>m.id===selectedAuditId);
+ const record=audits[selectedAuditId]||{};
+ const values=record.checks||{};
+ const allPass=auditChecks.every(([key])=>values[key]==='pass');
+ const hasIssues=auditChecks.some(([key])=>['warning','fail'].includes(values[key]));
+ html=heading('REQUIRED FINAL REVIEW','Security Audit','Complete every security check before a mission can be marked completed.')+
+ `<div class="panel"><h3>Select approved mission</h3><p class="sub">Only approved missions can enter the final security review.</p>
+ ${candidates.length?`<select id="auditMission" style="width:100%;padding:11px;background:#0c1727;color:#e7f0fa;border:1px solid #30435b;border-radius:8px">${candidates.map(m=>`<option value="${m.id}" ${m.id===selectedAuditId?'selected':''}>${esc(m.title)} — ${m.status}</option>`).join('')}</select>`:empty('No approved missions','Approve a mission first. Then run its final security audit.')}
+ </div>`+
+ (chosen?`<div class="panel"><h3>Security review checklist</h3><p class="sub">Set each check to Pass, Warning, or Fail based on evidence. Do not mark a check as Pass without reviewing it.</p>
+ ${auditChecks.map(([key,label])=>`<div class="row"><div class="rowmain"><b>${label}</b><small>Required final security control</small></div><select data-audit="${key}" style="max-width:125px;padding:8px;background:#0c1727;color:#e7f0fa;border:1px solid #30435b;border-radius:7px"><option value="pending" ${(values[key]||'pending')==='pending'?'selected':''}>Not checked</option><option value="pass" ${values[key]==='pass'?'selected':''}>Pass</option><option value="warning" ${values[key]==='warning'?'selected':''}>Warning</option><option value="fail" ${values[key]==='fail'?'selected':''}>Fail</option></select></div>`).join('')}
+ <button class="primary full" id="saveAudit" style="margin-top:14px">Save security review</button>
+ <div class="notice" id="auditResult">${allPass?'All checks passed. Mission completion can be unlocked.':hasIssues?'Warnings or failures detected. Mission completion is blocked until resolved and rechecked.':'Audit incomplete. Mission completion remains blocked.'}</div>
+ <button class="approve full" id="completeMission" style="margin-top:12px" ${allPass?'':'disabled'}>Mark mission completed</button>
+ </div>`:'');
  }else if(page==='activity'){
  html=heading('AUDIT TRAIL','Activity log','Recent events in this local workspace.')+`<div class="panel">${logs.map((l,i)=>`<div class="row"><div class="symbol">◷</div><div class="rowmain"><b>${esc(l)}</b><small>${i?'Earlier event':'Just now'}</small></div></div>`).join('')}</div>`;
  }else{
@@ -99,7 +129,11 @@ function render(){
  document.querySelectorAll('[data-agent]').forEach(b=>b.onclick=()=>{const n=b.dataset.agent;enabled[n]=enabled[n]===false?true:false;persist();log(`${n} ${enabled[n]?'enabled':'disabled'}`);render()});
  document.querySelectorAll('[data-approve]').forEach(b=>b.onclick=()=>change(b.dataset.approve,'approved'));
  document.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>change(b.dataset.reject,'rejected'));
- if($('reset'))$('reset').onclick=()=>{if(confirm('Reset all local AGENT ZERO demo data?')){missions=[];logs=['Local demo data reset'];persist();render()}};
+ if($('auditMission'))$('auditMission').onchange=e=>{selectedAuditId=e.target.value;render()};
+ document.querySelectorAll('[data-audit]').forEach(s=>s.onchange=()=>{const id=selectedAuditId;if(!audits[id])audits[id]={checks:{}};audits[id].checks[s.dataset.audit]=s.value;});
+ if($('saveAudit'))$('saveAudit').onclick=()=>{const id=selectedAuditId;if(!audits[id])audits[id]={checks:{}};document.querySelectorAll('[data-audit]').forEach(s=>audits[id].checks[s.dataset.audit]=s.value);audits[id].updatedAt=new Date().toISOString();persist();log('Security audit saved for '+(missions.find(m=>m.id===id)?.title||'mission'));render()};
+ if($('completeMission'))$('completeMission').onclick=()=>{const id=selectedAuditId;const checks=audits[id]?.checks||{};if(!auditChecks.every(([key])=>checks[key]==='pass')){alert('Completion blocked: every required security check must pass.');return}change(id,'completed');};
+ if($('reset'))$('reset').onclick=()=>{if(confirm('Reset all local AGENT ZERO demo data?')){missions=[];logs=['Local demo data reset'];audits={};persist();render()}};
 }
 function change(id,s){missions=missions.map(m=>m.id===id?{...m,status:s}:m);const m=missions.find(x=>x.id===id);log(`Mission ${s}: ${m.title}`);persist();render()}
 function openModal(){$('modalbg').style.display='grid';$('mtitle').focus()}
